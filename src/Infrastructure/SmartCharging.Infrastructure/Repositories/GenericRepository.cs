@@ -32,10 +32,8 @@ namespace SmartCharging.Infrastructure.Repositories
 			return await query.ToListAsync();
 		}
 
-		public async Task<T> GetByIdAsync(int id)
-		{
-			return await _dbSet.FindAsync(id);
-		}
+		public async Task<T?> GetByIdAsync(params object[] keyValues) =>
+			await _dbSet.FindAsync(keyValues);
 
 		public void Update(T entity) => _dbSet.Update(entity);
 	}

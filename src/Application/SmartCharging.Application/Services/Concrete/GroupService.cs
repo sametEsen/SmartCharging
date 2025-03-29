@@ -7,49 +7,55 @@ using SmartCharging.Domain.Interfaces;
 namespace SmartCharging.Application.Services.Concrete
 {
 	public class GroupService : IGroupService
-{
-		private readonly IUnitOfWork _unitOfWork;
+	{
+		private readonly IUnitOfWork _uow;
 		private readonly IMapper _mapper;
 
 		public GroupService(IUnitOfWork unitOfWork, IMapper mapper)
 		{
-			_unitOfWork = unitOfWork;
+			_uow = unitOfWork;
 			_mapper = mapper;
 		}
 
-		public async Task<IEnumerable<GroupDto>> GetAllGroupsAsync()
+		public async Task<IEnumerable<CreateGroupDto>> GetAllGroupsAsync()
 		{
-			var groups = await _unitOfWork.GroupRepository.GetAllAsync();
-			return _mapper.Map<IEnumerable<GroupDto>>(groups);
+			var groups = await _uow.GroupRepository.GetAllAsync();
+			return _mapper.Map<IEnumerable<CreateGroupDto>>(groups);
 		}
 
-		public async Task<GroupDto> GetGroupByIdAsync(int id)
+		public async Task<CreateGroupDto> GetGroupByIdAsync(int id)
 		{
-			var group = await _unitOfWork.GroupRepository.GetByIdAsync(id);
-			return _mapper.Map<GroupDto>(group);
+			var group = await _uow.GroupRepository.GetByIdAsync(id);
+			return _mapper.Map<CreateGroupDto>(group);
 		}
 
-		public async Task<GroupDto> CreateGroupAsync(GroupDto groupDto)
+		public async Task<CreateGroupDto> CreateGroupAsync(CreateGroupDto groupDto)
 		{
 			var group = _mapper.Map<Group>(groupDto);
-			await _unitOfWork.GroupRepository.AddAsync(group);
-			await _unitOfWork.SaveChangesAsync();
-			return _mapper.Map<GroupDto>(group);
+			await _uow.GroupRepository.AddAsync(group);
+			await _uow.SaveChangesAsync();
+			return _mapper.Map<CreateGroupDto>(group);
 		}
 
-		public async Task UpdateGroupAsync(GroupDto groupDto)
+		public async Task<CreateGroupDto> UpdateGroupAsync(int id, UpdateGroupDto updateGroupDto)
 		{
-			var group = await _unitOfWork.GroupRepository.GetByIdAsync(groupDto.Id);
+			var group = await _uow.GroupRepository.GetByIdAsync(id);
 			if (group == null) throw new KeyNotFoundException("Group not found");
 
-			_mapper.Map(groupDto, group);
-			_unitOfWork.GroupRepository.Update(group);
-			await _unitOfWork.SaveChangesAsync();
+			_mapper.Map(updateGroupDto, group);
+			_uow.GroupRepository.Update(group);
+			await _uow.SaveChangesAsync();
+			return _mapper.Map<CreateGroupDto>(group);
 		}
 
-		public async Task DeleteGroupAsync(int id)
+		public async Task<bool> DeleteGroupAsync(int id)
 		{
-			await _unitOfWork.GroupRepository.DeleteAsync(id);
-			await _unitOfWork.SaveChangesAsync();
+			var group = await _uow.GroupRepository.GetByIdAsync(id); 
+			if (group == null) throw new KeyNotFoundException("Group not found");
+
+			_uow.GroupRepository.Delete(group);
+			await _uow.SaveChangesAsync();
+			return true;
 		}
 	}
+}

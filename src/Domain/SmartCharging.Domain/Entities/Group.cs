@@ -9,6 +9,9 @@
 		private readonly List<ChargeStation> _chargeStations = new();
 		public IReadOnlyCollection<ChargeStation> ChargeStations => _chargeStations.AsReadOnly();
 
+		// Parameterless constructor
+		public Group() { }
+
 		public Group(int id, string name, int capacityInAmps)
 		{
 			if (capacityInAmps <= 0) throw new ArgumentException("Capacity must be greater than zero.");

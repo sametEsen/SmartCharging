@@ -8,6 +8,9 @@
 		public int ChargeStationId { get; private set; }  // Foreign Key for EF Core
 		public ChargeStation ChargeStation { get; private set; }  // Navigation Property
 
+		// Parameterless constructor
+		public Connector() { }
+
 		public Connector(int id, int maxCurrentInAmps, ChargeStation chargeStation)
 		{
 			if (id < 1 || id > 5) throw new ArgumentException("Connector ID must be between 1 and 5.");

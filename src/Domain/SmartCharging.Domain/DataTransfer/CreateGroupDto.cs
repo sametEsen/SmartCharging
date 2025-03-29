@@ -1,8 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace SmartCharging.Domain.DataTransfer
+﻿namespace SmartCharging.Domain.DataTransfer
 {
-	public class GroupDto
+	public class CreateGroupDto
 	{
 		public int Id { get; set; }
 		public string Name { get; set; }

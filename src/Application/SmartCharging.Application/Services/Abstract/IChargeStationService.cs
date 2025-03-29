@@ -7,7 +7,7 @@ namespace SmartCharging.Application.Services.Abstract
 		Task<IEnumerable<ChargeStationDto>> GetAllChargeStationsAsync();
 		Task<ChargeStationDto> GetChargeStationByIdAsync(int id);
 		Task<ChargeStationDto> CreateChargeStationAsync(ChargeStationDto chargeStationDto);
-		Task UpdateChargeStationAsync(ChargeStationDto chargeStationDto);
-		Task DeleteChargeStationAsync(int id);
+		Task<ChargeStationDto> UpdateChargeStationAsync(ChargeStationDto chargeStationDto);
+		Task<bool> DeleteChargeStationAsync(int id);
 	}
 }

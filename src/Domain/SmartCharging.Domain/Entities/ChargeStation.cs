@@ -11,6 +11,9 @@
 		private readonly List<Connector> _connectors = new();
 		public IReadOnlyCollection<Connector> Connectors => _connectors.AsReadOnly();
 
+		// Parameterless constructor
+		public ChargeStation() { }
+
 		public ChargeStation(int id, string name)
 		{
 			Id = id;
