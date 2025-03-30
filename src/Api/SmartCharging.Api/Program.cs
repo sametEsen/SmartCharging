@@ -3,7 +3,9 @@ using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using SmartCharging.Application.Services.Abstract;
 using SmartCharging.Application.Services.Concrete;
-using SmartCharging.Application.Validators;
+using SmartCharging.Application.Validators.ChargeStation;
+using SmartCharging.Application.Validators.Connector;
+using SmartCharging.Application.Validators.Group;
 using SmartCharging.Domain.Interfaces;
 using SmartCharging.Infrastructure.Contexts;
 using SmartCharging.Infrastructure.MappingProfiles;
@@ -31,12 +33,15 @@ namespace SmartCharging.Api
 
 			builder.Services.AddAutoMapper(typeof(SmartChargingProfile));
 
-			builder.Services.AddControllers();
 			builder.Services.AddFluentValidationAutoValidation();
-			builder.Services.AddFluentValidationClientsideAdapters(); // If needed for client-side validation
 			builder.Services.AddValidatorsFromAssemblyContaining<CreateGroupValidator>();
-			builder.Services.AddValidatorsFromAssemblyContaining<ConnectorValidator>();
-			builder.Services.AddValidatorsFromAssemblyContaining<ChargeStationValidator>();
+			builder.Services.AddValidatorsFromAssemblyContaining<UpdateGroupValidator>();
+			builder.Services.AddValidatorsFromAssemblyContaining<CreateConnectorValidator>();
+			builder.Services.AddValidatorsFromAssemblyContaining<UpdateConnectorValidator>();
+			builder.Services.AddValidatorsFromAssemblyContaining<CreateChargeStationValidator>();
+			builder.Services.AddValidatorsFromAssemblyContaining<UpdateChargeStationValidator>();
+
+			builder.Services.AddControllers();
 
 			builder.Services.AddEndpointsApiExplorer();
 			builder.Services.AddSwaggerGen();

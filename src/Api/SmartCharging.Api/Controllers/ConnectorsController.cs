@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using SmartCharging.Application.Services.Abstract;
-using SmartCharging.Domain.DataTransfer;
+using SmartCharging.Domain.DataTransfer.Connector;
 
 namespace SmartCharging.Api.Controllers
 {
@@ -10,13 +10,13 @@ namespace SmartCharging.Api.Controllers
 	public class ConnectorsController : ControllerBase
 	{
 		private readonly IConnectorService _connectorService;
-		private readonly IValidator<ConnectorDto> _connectorValidator;
-		private readonly IValidator<ConnectorDto> _updateConnectorValidator;
+		private readonly IValidator<CreateConnectorDto> _createConnectorValidator;
+		private readonly IValidator<UpdateConnectorDto> _updateConnectorValidator;
 
-		public ConnectorsController(IConnectorService connectorService, IValidator<ConnectorDto> connectorValidator, IValidator<ConnectorDto> updateConnectorValidator)
+		public ConnectorsController(IConnectorService connectorService, IValidator<CreateConnectorDto> createConnectorValidator, IValidator<UpdateConnectorDto> updateConnectorValidator)
 		{
 			_connectorService = connectorService;
-			_connectorValidator = connectorValidator;
+			_createConnectorValidator = createConnectorValidator;
 			_updateConnectorValidator = updateConnectorValidator;
 		}
 
@@ -38,9 +38,9 @@ namespace SmartCharging.Api.Controllers
 
 		// Create a new Connector
 		[HttpPost]
-		public async Task<IActionResult> CreateConnector([FromBody] ConnectorDto connectordto)
+		public async Task<IActionResult> CreateConnector([FromBody] CreateConnectorDto connectordto)
 		{
-			var validationResult = await _connectorValidator.ValidateAsync(connectordto);
+			var validationResult = await _createConnectorValidator.ValidateAsync(connectordto);
 			if (!validationResult.IsValid)
 				return BadRequest(validationResult.Errors);
 
@@ -50,15 +50,27 @@ namespace SmartCharging.Api.Controllers
 
 		// Update an existing Connector
 		[HttpPut("{chargeStationId}/{id}")]
-		public async Task<IActionResult> UpdateConnector(int chargeStationId, int id, [FromBody] ConnectorDto connectordto)
+		public async Task<IActionResult> UpdateConnector(int chargeStationId, int id, [FromBody] UpdateConnectorDto connectorDto)
 		{
-			var validationResult = await _updateConnectorValidator.ValidateAsync(connectordto);
+			var validationResult = await _updateConnectorValidator.ValidateAsync(connectorDto);
 			if (!validationResult.IsValid)
 				return BadRequest(validationResult.Errors);
 
-			var updatedConnector = await _connectorService.UpdateConnectorAsync(connectordto);
-			return updatedConnector != null ? Ok(updatedConnector) : NotFound();
+			try
+			{
+				var updatedConnector = await _connectorService.UpdateConnectorAsync(chargeStationId, id, connectorDto);
+				return Ok(updatedConnector);
+			}
+			catch (InvalidOperationException ex)
+			{
+				return BadRequest(ex.Message); // Handles domain-level validation exceptions
+			}
+			catch (KeyNotFoundException)
+			{
+				return NotFound();
+			}
 		}
+
 
 		// Delete a Connector
 		[HttpDelete("{chargeStationId}/{id}")]

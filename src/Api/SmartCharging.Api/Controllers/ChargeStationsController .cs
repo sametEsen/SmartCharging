@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using SmartCharging.Application.Services.Abstract;
-using SmartCharging.Domain.DataTransfer;
+using SmartCharging.Domain.DataTransfer.ChargeStation;
 
 namespace SmartCharging.Api.Controllers
 {
@@ -10,13 +10,13 @@ namespace SmartCharging.Api.Controllers
 	public class ChargeStationsController : ControllerBase
 	{
 		private readonly IChargeStationService _chargeStationService;
-		private readonly IValidator<ChargeStationDto> _chargeStationValidator;
-		private readonly IValidator<ChargeStationDto> _updateChargeStationValidator;
+		private readonly IValidator<CreateChargeStationDto> _createChargeStationValidator;
+		private readonly IValidator<UpdateChargeStationDto> _updateChargeStationValidator;
 
-		public ChargeStationsController(IChargeStationService chargeStationService, IValidator<ChargeStationDto> chargeStationValidator, IValidator<ChargeStationDto> updateChargeStationValidator)
+		public ChargeStationsController(IChargeStationService chargeStationService, IValidator<CreateChargeStationDto> createChargeStationValidator, IValidator<UpdateChargeStationDto> updateChargeStationValidator)
 		{
 			_chargeStationService = chargeStationService;
-			_chargeStationValidator = chargeStationValidator;
+			_createChargeStationValidator = createChargeStationValidator;
 			_updateChargeStationValidator = updateChargeStationValidator;
 		}
 
@@ -38,25 +38,25 @@ namespace SmartCharging.Api.Controllers
 
 		// Create a new Charge Station
 		[HttpPost]
-		public async Task<IActionResult> CreateChargeStation([FromBody] ChargeStationDto dto)
+		public async Task<IActionResult> CreateChargeStation([FromBody] CreateChargeStationDto createDto)
 		{
-			var validationResult = await _chargeStationValidator.ValidateAsync(dto);
+			var validationResult = await _createChargeStationValidator.ValidateAsync(createDto);
 			if (!validationResult.IsValid)
 				return BadRequest(validationResult.Errors);
 
-			var createdChargeStation = await _chargeStationService.CreateChargeStationAsync(dto);
+			var createdChargeStation = await _chargeStationService.CreateChargeStationAsync(createDto);
 			return CreatedAtAction(nameof(GetChargeStation), new { id = createdChargeStation.Id }, createdChargeStation);
 		}
 
 		// Update an existing Charge Station
 		[HttpPut("{id}")]
-		public async Task<IActionResult> UpdateChargeStation(int id, [FromBody] ChargeStationDto dto)
+		public async Task<IActionResult> UpdateChargeStation(int id, [FromBody] UpdateChargeStationDto updateDto)
 		{
-			var validationResult = await _updateChargeStationValidator.ValidateAsync(dto);
+			var validationResult = await _updateChargeStationValidator.ValidateAsync(updateDto);
 			if (!validationResult.IsValid)
 				return BadRequest(validationResult.Errors);
 
-			var updatedChargeStation = await _chargeStationService.UpdateChargeStationAsync(dto);
+			var updatedChargeStation = await _chargeStationService.UpdateChargeStationAsync(id, updateDto);
 			return updatedChargeStation != null ? Ok(updatedChargeStation) : NotFound();
 		}
 

@@ -1,4 +1,4 @@
-﻿namespace SmartCharging.Domain.DataTransfer
+﻿namespace SmartCharging.Domain.DataTransfer.Group
 {
 	public class UpdateGroupDto
 	{

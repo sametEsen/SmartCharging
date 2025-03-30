@@ -1,11 +1,11 @@
 ﻿using FluentValidation;
-using SmartCharging.Domain.DataTransfer;
+using SmartCharging.Domain.DataTransfer.Connector;
 
-namespace SmartCharging.Application.Validators
+namespace SmartCharging.Application.Validators.Connector
 {
-	public class ConnectorValidator : AbstractValidator<ConnectorDto>
+	public class CreateConnectorValidator : AbstractValidator<CreateConnectorDto>
 	{
-		public ConnectorValidator()
+		public CreateConnectorValidator()
 		{
 			RuleFor(c => c.Id)
 				.InclusiveBetween(1, 5).WithMessage("Connector ID must be between 1 and 5.");

@@ -1,4 +1,4 @@
-﻿using SmartCharging.Domain.DataTransfer;
+﻿using SmartCharging.Domain.DataTransfer.Group;
 
 namespace SmartCharging.Application.Services.Abstract
 {

@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using SmartCharging.Application.Services.Abstract;
-using SmartCharging.Domain.DataTransfer;
+using SmartCharging.Domain.DataTransfer.Group;
 
 namespace SmartCharging.Api.Controllers
 {
@@ -10,13 +10,13 @@ namespace SmartCharging.Api.Controllers
 	public class GroupsController : ControllerBase
 	{
 		private readonly IGroupService _groupService;
-		private readonly IValidator<CreateGroupDto> _groupValidator;
+		private readonly IValidator<CreateGroupDto> _createGroupValidator;
 		private readonly IValidator<UpdateGroupDto> _updateGroupValidator;
 
-		public GroupsController(IGroupService groupService, IValidator<CreateGroupDto> groupValidator, IValidator<UpdateGroupDto> updateGroupValidator)
+		public GroupsController(IGroupService groupService, IValidator<CreateGroupDto> createGroupValidator, IValidator<UpdateGroupDto> updateGroupValidator)
 		{
 			_groupService = groupService;
-			_groupValidator = groupValidator;
+			_createGroupValidator = createGroupValidator;
 			_updateGroupValidator = updateGroupValidator;
 		}
 
@@ -38,13 +38,13 @@ namespace SmartCharging.Api.Controllers
 
 		// Create a new Group
 		[HttpPost]
-		public async Task<IActionResult> CreateGroup([FromBody] CreateGroupDto dto)
+		public async Task<IActionResult> CreateGroup([FromBody] CreateGroupDto groupDto)
 		{
-			var validationResult = await _groupValidator.ValidateAsync(dto);
+			var validationResult = await _createGroupValidator.ValidateAsync(groupDto);
 			if (!validationResult.IsValid)
 				return BadRequest(validationResult.Errors);
 
-			var createdGroup = await _groupService.CreateGroupAsync(dto);
+			var createdGroup = await _groupService.CreateGroupAsync(groupDto);
 			return CreatedAtAction(nameof(GetGroup), new { id = createdGroup.Id }, createdGroup);
 		}
 

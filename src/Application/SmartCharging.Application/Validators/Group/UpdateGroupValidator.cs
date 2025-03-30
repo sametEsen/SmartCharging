@@ -1,11 +1,11 @@
 ﻿using FluentValidation;
-using SmartCharging.Domain.DataTransfer;
+using SmartCharging.Domain.DataTransfer.Group;
 
-namespace SmartCharging.Application.Validators
+namespace SmartCharging.Application.Validators.Group
 {
-	public class CreateGroupValidator : AbstractValidator<CreateGroupDto>
+	public class UpdateGroupValidator : AbstractValidator<UpdateGroupDto>
 	{
-		public CreateGroupValidator()
+		public UpdateGroupValidator()
 		{
 			RuleFor(g => g.Name)
 				.NotEmpty().WithMessage("Group name is required.")

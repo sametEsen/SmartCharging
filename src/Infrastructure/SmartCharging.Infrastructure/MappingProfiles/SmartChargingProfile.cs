@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
-using SmartCharging.Domain.DataTransfer;
+using SmartCharging.Domain.DataTransfer.ChargeStation;
+using SmartCharging.Domain.DataTransfer.Connector;
+using SmartCharging.Domain.DataTransfer.Group;
 using SmartCharging.Domain.Entities;
 
 namespace SmartCharging.Infrastructure.MappingProfiles
@@ -9,8 +11,8 @@ namespace SmartCharging.Infrastructure.MappingProfiles
 		public SmartChargingProfile()
 		{
 			CreateMap<Group, CreateGroupDto>().ReverseMap();
-			CreateMap<ChargeStation, ChargeStationDto>().ReverseMap();
-			CreateMap<Connector, ConnectorDto>().ReverseMap();
+			CreateMap<ChargeStation, CreateChargeStationDto>().ReverseMap();
+			CreateMap<Connector, CreateConnectorDto>().ReverseMap();
 		}
 	}
 }

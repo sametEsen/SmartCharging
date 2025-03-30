@@ -3,11 +3,14 @@ using Microsoft.AspNetCore.Mvc;
 using FluentValidation;
 using SmartCharging.Api.Controllers;
 using SmartCharging.Application.Services.Abstract;
-using SmartCharging.Domain.DataTransfer;
 using SmartCharging.Domain.Entities;
 using AutoMapper;
 using SmartCharging.Infrastructure.MappingProfiles;
 using FluentAssertions;
+using SmartCharging.Domain.DataTransfer.Group;
+using SmartCharging.Application.Services.Concrete;
+using SmartCharging.Domain.DataTransfer.ChargeStation;
+using SmartCharging.Domain.Interfaces;
 
 namespace SmartCharging.Tests.Api
 {
@@ -133,15 +136,15 @@ namespace SmartCharging.Tests.Api
 		public async Task CreateGroup_ShouldReturnCreatedAtAction_WhenValidData()
 		{
 			// Arrange
-			var createGroupDto = new CreateGroupDto { Name = "New Group", CapacityInAmps = 150 };
+			var newGroupDto = new CreateGroupDto { Name = "New Group", CapacityInAmps = 150 };
 			var group = new Group(1, "New Group", 150);
-			var groupDto = _mapper.Map<CreateGroupDto>(group);
+			var createdGroupDto = _mapper.Map<CreateGroupDto>(group);
 
-			_createGroupValidatorMock.Setup(validator => validator.ValidateAsync(createGroupDto, It.IsAny<CancellationToken>())).ReturnsAsync(new FluentValidation.Results.ValidationResult());
-			_groupServiceMock.Setup(service => service.CreateGroupAsync(createGroupDto)).ReturnsAsync(groupDto);
+			_createGroupValidatorMock.Setup(validator => validator.ValidateAsync(newGroupDto, It.IsAny<CancellationToken>())).ReturnsAsync(new FluentValidation.Results.ValidationResult());
+			_groupServiceMock.Setup(service => service.CreateGroupAsync(newGroupDto)).ReturnsAsync(createdGroupDto);
 
 			// Act
-			var result = await _controller.CreateGroup(createGroupDto);
+			var result = await _controller.CreateGroup(newGroupDto);
 
 			// Assert
 			var createdResult = result as CreatedAtActionResult;
@@ -156,12 +159,12 @@ namespace SmartCharging.Tests.Api
 		public async Task CreateGroup_ShouldReturnBadRequest_WhenInvalidData()
 		{
 			// Arrange
-			var createGroupDto = new CreateGroupDto { Name = "New Group", CapacityInAmps = -10 };
+			var newGroupDto = new CreateGroupDto { Name = "New Group", CapacityInAmps = -10 };
 			var validationErrors = new FluentValidation.Results.ValidationFailure[] { new FluentValidation.Results.ValidationFailure("CapacityInAmps", "Capacity must be greater than zero.") };
-			_createGroupValidatorMock.Setup(validator => validator.ValidateAsync(createGroupDto, It.IsAny<CancellationToken>())).ReturnsAsync(new FluentValidation.Results.ValidationResult(validationErrors));
+			_createGroupValidatorMock.Setup(validator => validator.ValidateAsync(newGroupDto, It.IsAny<CancellationToken>())).ReturnsAsync(new FluentValidation.Results.ValidationResult(validationErrors));
 
 			// Act
-			var result = await _controller.CreateGroup(createGroupDto);
+			var result = await _controller.CreateGroup(newGroupDto);
 
 			// Assert
 			var badRequestResult = result as BadRequestObjectResult;
@@ -246,18 +249,44 @@ namespace SmartCharging.Tests.Api
 		}
 
 		[Test]
-		public async Task DeleteGroup_ShouldReturnNotFound_WhenGroupDoesNotExist()
+		public async Task DeleteGroup_GroupWithChargeStations_ShouldRemoveChargeStationsAndGroup()
 		{
 			// Arrange
-			var groupId = 99;
-			_groupServiceMock.Setup(service => service.DeleteGroupAsync(groupId)).ReturnsAsync(false);
+			var group = new CreateGroupDto { Id = 1, Name = "Group A", CapacityInAmps = 100 };
+			var chargeStation1 = new CreateChargeStationDto { Id = 1, Name = "Station X", GroupId = 1 };
+			var chargeStation2 = new CreateChargeStationDto { Id = 2, Name = "Station Y", GroupId = 1 };
+
+			// Mock the data for Group and ChargeStations
+			_groupServiceMock.Setup(s => s.GetGroupByIdAsync(1)).ReturnsAsync(group);
+
+			// Mock the DeleteGroupAsync method to delete the group and its charge stations
+			_groupServiceMock.Setup(s => s.DeleteGroupAsync(1)).ReturnsAsync(true);
 
 			// Act
-			var result = await _controller.DeleteGroup(groupId);
+			var result = await _controller.DeleteGroup(1) as NoContentResult;
 
 			// Assert
-			result.Should().BeOfType<NotFoundResult>();
+			result.Should().NotBeNull();
+			result.StatusCode.Should().Be(204); // No Content response
+
+			// Verify the delete action for Group
+			_groupServiceMock.Verify(s => s.DeleteGroupAsync(1), Times.Once);
 		}
+
+		[Test]
+		public async Task DeleteGroup_GroupNotFound_ShouldReturnNotFound()
+		{
+			// Arrange
+			_groupServiceMock.Setup(s => s.DeleteGroupAsync(1)).ReturnsAsync(false);
+
+			// Act
+			var result = await _controller.DeleteGroup(1) as NotFoundResult;
+
+			// Assert
+			result.Should().NotBeNull();
+			result.StatusCode.Should().Be(404); // Not Found response
+		}
+
 
 		#endregion
 	}

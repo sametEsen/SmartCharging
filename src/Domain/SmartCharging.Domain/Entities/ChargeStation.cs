@@ -51,5 +51,4 @@
 			return _connectors.Sum(c => c.MaxCurrentInAmps);
 		}
 	}
-
 }

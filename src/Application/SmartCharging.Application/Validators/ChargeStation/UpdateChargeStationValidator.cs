@@ -1,11 +1,11 @@
 ﻿using FluentValidation;
-using SmartCharging.Domain.DataTransfer;
+using SmartCharging.Domain.DataTransfer.ChargeStation;
 
-namespace SmartCharging.Application.Validators
+namespace SmartCharging.Application.Validators.ChargeStation
 {
-	public class ChargeStationValidator : AbstractValidator<ChargeStationDto>
+	public class UpdateChargeStationValidator : AbstractValidator<UpdateChargeStationDto>
 	{
-		public ChargeStationValidator()
+		public UpdateChargeStationValidator()
 		{
 			RuleFor(cs => cs.Name)
 				.NotEmpty().WithMessage("Charge Station name is required.")
@@ -15,5 +15,4 @@ namespace SmartCharging.Application.Validators
 				.GreaterThan(0).WithMessage("A Charge Station must be associated with a valid Group.");
 		}
 	}
-
 }
