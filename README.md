@@ -146,11 +146,6 @@ Example: **Reject Connector Update if It Exceeds Group Capacity**
 ## **🧪 Unit Testing**
 **Test Framework:** `NUnit + Moq + FluentAssertions`  
 
-Run tests:  
-```sh
-dotnet test
-```
-
 ### **📌 Unit Tests Implemented**
 ✔️ **GroupControllerTests**  
 ✔️ **ChargeStationControllerTests**  
