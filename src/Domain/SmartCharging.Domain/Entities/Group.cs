@@ -9,7 +9,7 @@
 		private readonly List<ChargeStation> _chargeStations = new();
 		public IReadOnlyCollection<ChargeStation> ChargeStations => _chargeStations.AsReadOnly();
 
-		// Parameterless constructor
+		// Parameterless ctor
 		public Group() { }
 
 		public Group(int id, string name, int capacityInAmps)

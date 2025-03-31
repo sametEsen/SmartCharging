@@ -31,7 +31,7 @@ namespace SmartCharging.Application.Services.Concrete
 
 		public async Task<ChargeStationDto> CreateChargeStationAsync(CreateChargeStationDto chargeStationDto)
 		{
-			var station = new ChargeStation(0, chargeStationDto.Name); // 0 as Id since EF Core will handle it
+			var station = new ChargeStation(0, chargeStationDto.Name); // EF Core will handle Id
 
 			var group = await _uow.GroupRepository.GetByIdAsync(chargeStationDto.GroupId);
 			if (group == null) throw new KeyNotFoundException("Group not found.");
@@ -57,7 +57,7 @@ namespace SmartCharging.Application.Services.Concrete
 				station.AssignToGroup(group);
 			}
 
-			if (chargeStationDto.Connectors.Count > 0)
+			if (chargeStationDto.Connectors.Count() > 0)
 			{
 				var connectors = _mapper.Map<List<Connector>>(chargeStationDto.Connectors);
 				foreach (var connector in connectors)

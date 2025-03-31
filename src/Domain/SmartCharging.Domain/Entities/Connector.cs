@@ -8,7 +8,7 @@
 		public int ChargeStationId { get; private set; }  // Foreign Key for EF Core
 		public ChargeStation ChargeStation { get; private set; }  // Navigation Property
 
-		// Parameterless constructor
+		// Parameterless ctor
 		public Connector() { }
 
 		public Connector(int id, int maxCurrentInAmps, ChargeStation chargeStation)

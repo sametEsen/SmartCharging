@@ -33,7 +33,7 @@ namespace SmartCharging.Application.Services.Concrete
 
 		public async Task<GroupDto> CreateGroupAsync(CreateGroupDto groupDto)
 		{
-			var group = new Group(0, groupDto.Name, groupDto.CapacityInAmps); // ID will be set by DB
+			var group = new Group(0, groupDto.Name, groupDto.CapacityInAmps); // EF Core will handle Id
 			await _uow.GroupRepository.AddAsync(group);
 			await _uow.SaveChangesAsync();
 			return _mapper.Map<GroupDto>(group);
