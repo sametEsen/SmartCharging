@@ -87,6 +87,19 @@ You can change it to **SQL Server** by updating `SmartChargingContext.cs` in **I
 
 ---
 
+## **🚀 Seed In-Memory Database**
+- To seed the database with some initial data, the following method can be used
+
+🚀 The endpoint is `/api/seed`
+
+- This method does the following:
+  - Creates a new Group with a random name and a capacity of 100 Amps.
+  - Creates a Charge Station and assigns it to the created Group.
+  - Creates multiple Connectors for the created Charge Station, each with different maximum current capacities (50, 25, and 15 Amps).
+  - The method returns an OK response when the database is seeded successfully.
+
+---
+
 ## **📡 API Endpoints**
 All responses follow **RESTful conventions** and use **DTOs**.  
 
