@@ -1,4 +1,4 @@
-# **Smart Charging API** 🚗⚡  
+# **Smart Charging API** (Version: 25)
 
 This project is a **DDD-based** .NET Web API for managing **charging stations, groups, and connectors**.  
 
