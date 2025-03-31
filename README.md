@@ -90,7 +90,7 @@ You can change it to **SQL Server** by updating `SmartChargingContext.cs` in **I
 ## **🚀 Seed In-Memory Database**
 - To seed the database with some initial data, the following method can be used
 
-🚀 The endpoint is `/api/seed`
+🚀 The endpoint is `/seed`
 
 - This method does the following:
   - Creates a new Group with a random name and a capacity of 100 Amps.
