@@ -11,6 +11,14 @@ namespace SmartCharging.Infrastructure.Repositories
 		{
 		}
 
+		public async Task<IEnumerable<Group>> GetAllWithRelatedChildsAsync()
+		{
+			return await _dbContext.Groups
+				.Include(g => g.ChargeStations)
+					.ThenInclude(cs => cs.Connectors)
+				.ToListAsync();
+		}
+
 		public async Task<Group?> GetGroupWithChargeStationsAsync(int id)
 		{
 			return await _dbContext.Groups

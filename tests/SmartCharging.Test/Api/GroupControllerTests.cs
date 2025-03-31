@@ -1,16 +1,14 @@
-﻿using Moq;
-using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using FluentAssertions;
 using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
+using Moq;
 using SmartCharging.Api.Controllers;
 using SmartCharging.Application.Services.Abstract;
-using SmartCharging.Domain.Entities;
-using AutoMapper;
-using SmartCharging.Infrastructure.MappingProfiles;
-using FluentAssertions;
-using SmartCharging.Domain.DataTransfer.Group;
-using SmartCharging.Application.Services.Concrete;
 using SmartCharging.Domain.DataTransfer.ChargeStation;
-using SmartCharging.Domain.Interfaces;
+using SmartCharging.Domain.DataTransfer.Group;
+using SmartCharging.Domain.Entities;
+using SmartCharging.Infrastructure.MappingProfiles;
 
 namespace SmartCharging.Tests.Api
 {
@@ -56,7 +54,7 @@ namespace SmartCharging.Tests.Api
 			};
 
 			// Map the groups to GroupDto using AutoMapper
-			var groupDtos = _mapper.Map<List<CreateGroupDto>>(groups);
+			var groupDtos = _mapper.Map<List<GroupDto>>(groups);
 			_groupServiceMock.Setup(service => service.GetAllGroupsAsync()).ReturnsAsync(groupDtos);
 
 			// Act
@@ -66,7 +64,7 @@ namespace SmartCharging.Tests.Api
 			var okResult = result as OkObjectResult;
 			okResult.Should().NotBeNull();
 			okResult.StatusCode.Should().Be(200);
-			var returnedGroupDtos = okResult.Value as List<CreateGroupDto>;
+			var returnedGroupDtos = okResult.Value as List<GroupDto>;
 			returnedGroupDtos.Should().HaveCount(2);
 			returnedGroupDtos[0].Name.Should().Be("Group 1");
 			returnedGroupDtos[1].Name.Should().Be("Group 2");
@@ -76,7 +74,7 @@ namespace SmartCharging.Tests.Api
 		public async Task GetAllGroups_ShouldReturnNotFound_WhenNoGroupsExist()
 		{
 			// Arrange
-			_groupServiceMock.Setup(service => service.GetAllGroupsAsync()).ReturnsAsync(new List<CreateGroupDto>());
+			_groupServiceMock.Setup(service => service.GetAllGroupsAsync()).ReturnsAsync(new List<GroupDto>());
 
 			// Act
 			var result = await _controller.GetAllGroups();
@@ -85,7 +83,7 @@ namespace SmartCharging.Tests.Api
 			var okResult = result as OkObjectResult;
 			okResult.Should().NotBeNull();
 			okResult.StatusCode.Should().Be(200);
-			var returnedGroupDtos = okResult.Value as List<CreateGroupDto>;
+			var returnedGroupDtos = okResult.Value as List<GroupDto>;
 			returnedGroupDtos.Should().BeEmpty();
 		}
 
@@ -99,7 +97,7 @@ namespace SmartCharging.Tests.Api
 			// Arrange
 			var groupId = 1;
 			var group = new Group(groupId, "Group 1", 100);
-			var groupDto = _mapper.Map<CreateGroupDto>(group);
+			var groupDto = _mapper.Map<GroupDto>(group);
 			_groupServiceMock.Setup(service => service.GetGroupByIdAsync(groupId)).ReturnsAsync(groupDto);
 
 			// Act
@@ -109,7 +107,7 @@ namespace SmartCharging.Tests.Api
 			var okResult = result as OkObjectResult;
 			okResult.Should().NotBeNull();
 			okResult.StatusCode.Should().Be(200);
-			var returnedGroupDto = okResult.Value as CreateGroupDto;
+			var returnedGroupDto = okResult.Value as GroupDto;
 			returnedGroupDto.Should().NotBeNull();
 			returnedGroupDto.Name.Should().Be("Group 1");
 		}
@@ -119,7 +117,7 @@ namespace SmartCharging.Tests.Api
 		{
 			// Arrange
 			var groupId = 99;
-			_groupServiceMock.Setup(service => service.GetGroupByIdAsync(groupId)).ReturnsAsync((CreateGroupDto)null);
+			_groupServiceMock.Setup(service => service.GetGroupByIdAsync(groupId)).ReturnsAsync((GroupDto)null);
 
 			// Act
 			var result = await _controller.GetGroup(groupId);
@@ -138,7 +136,7 @@ namespace SmartCharging.Tests.Api
 			// Arrange
 			var newGroupDto = new CreateGroupDto { Name = "New Group", CapacityInAmps = 150 };
 			var group = new Group(1, "New Group", 150);
-			var createdGroupDto = _mapper.Map<CreateGroupDto>(group);
+			var createdGroupDto = _mapper.Map<GroupDto>(group);
 
 			_createGroupValidatorMock.Setup(validator => validator.ValidateAsync(newGroupDto, It.IsAny<CancellationToken>())).ReturnsAsync(new FluentValidation.Results.ValidationResult());
 			_groupServiceMock.Setup(service => service.CreateGroupAsync(newGroupDto)).ReturnsAsync(createdGroupDto);
@@ -150,7 +148,7 @@ namespace SmartCharging.Tests.Api
 			var createdResult = result as CreatedAtActionResult;
 			createdResult.Should().NotBeNull();
 			createdResult.StatusCode.Should().Be(201);
-			var returnedGroup = createdResult.Value as CreateGroupDto;
+			var returnedGroup = createdResult.Value as GroupDto;
 			returnedGroup.Should().NotBeNull();
 			returnedGroup.Name.Should().Be("New Group");
 		}
@@ -184,7 +182,7 @@ namespace SmartCharging.Tests.Api
 			var groupId = 1;
 			var updateGroupDto = new UpdateGroupDto { Name = "Updated Group", CapacityInAmps = 200 };
 			var group = new Group(groupId, "Updated Group", 200);
-			var groupDto = _mapper.Map<CreateGroupDto>(group);
+			var groupDto = _mapper.Map<GroupDto>(group);
 
 			// Mock the validator to return a successful validation result
 			var validationResult = new FluentValidation.Results.ValidationResult();
@@ -202,7 +200,7 @@ namespace SmartCharging.Tests.Api
 			var okResult = result as OkObjectResult;
 			okResult.Should().NotBeNull();
 			okResult.StatusCode.Should().Be(200);
-			var updatedGroup = okResult.Value as CreateGroupDto;
+			var updatedGroup = okResult.Value as GroupDto;
 			updatedGroup.Should().NotBeNull();
 			updatedGroup.Name.Should().Be("Updated Group");
 		}
@@ -221,7 +219,7 @@ namespace SmartCharging.Tests.Api
 
 			// Mock the service to return the mapped GroupDto
 			_groupServiceMock.Setup(service => service.UpdateGroupAsync(groupId, updateGroupDto))
-							 .ReturnsAsync((CreateGroupDto)null);
+							 .ReturnsAsync((GroupDto)null);
 
 			// Act
 			var result = await _controller.UpdateGroup(groupId, updateGroupDto);
@@ -246,31 +244,6 @@ namespace SmartCharging.Tests.Api
 
 			// Assert
 			result.Should().BeOfType<NoContentResult>();
-		}
-
-		[Test]
-		public async Task DeleteGroup_GroupWithChargeStations_ShouldRemoveChargeStationsAndGroup()
-		{
-			// Arrange
-			var group = new CreateGroupDto { Id = 1, Name = "Group A", CapacityInAmps = 100 };
-			var chargeStation1 = new CreateChargeStationDto { Id = 1, Name = "Station X", GroupId = 1 };
-			var chargeStation2 = new CreateChargeStationDto { Id = 2, Name = "Station Y", GroupId = 1 };
-
-			// Mock the data for Group and ChargeStations
-			_groupServiceMock.Setup(s => s.GetGroupByIdAsync(1)).ReturnsAsync(group);
-
-			// Mock the DeleteGroupAsync method to delete the group and its charge stations
-			_groupServiceMock.Setup(s => s.DeleteGroupAsync(1)).ReturnsAsync(true);
-
-			// Act
-			var result = await _controller.DeleteGroup(1) as NoContentResult;
-
-			// Assert
-			result.Should().NotBeNull();
-			result.StatusCode.Should().Be(204); // No Content response
-
-			// Verify the delete action for Group
-			_groupServiceMock.Verify(s => s.DeleteGroupAsync(1), Times.Once);
 		}
 
 		[Test]

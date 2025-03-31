@@ -25,7 +25,7 @@
 		public void UpdateMaxCurrent(int maxCurrent)
 		{
 			if (maxCurrent <= 0) throw new ArgumentException("Max current must be greater than zero.");
-			if (ChargeStation.Group != null && ChargeStation.Group.GetTotalCurrentLoad() - MaxCurrentInAmps + maxCurrent > ChargeStation.Group.CapacityInAmps)
+			if (ChargeStation.Group != null && ChargeStation.Group.GetTotalCurrentLoad() + maxCurrent > ChargeStation.Group.CapacityInAmps)
 				throw new InvalidOperationException("Updating max current exceeds group's capacity.");
 
 			MaxCurrentInAmps = maxCurrent;

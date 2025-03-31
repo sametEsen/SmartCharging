@@ -17,29 +17,29 @@ namespace SmartCharging.Application.Services.Concrete
 			_mapper = mapper;
 		}
 
-		public async Task<IEnumerable<CreateGroupDto>> GetAllGroupsAsync()
+		public async Task<IEnumerable<GroupDto>> GetAllGroupsAsync()
 		{
-			var groups = await _uow.GroupRepository.GetAllAsync();
-			return _mapper.Map<IEnumerable<CreateGroupDto>>(groups);
+			var groups = await _uow.GroupRepository.GetAllWithRelatedChildsAsync();
+			return _mapper.Map<IEnumerable<GroupDto>>(groups);
 		}
 
-		public async Task<CreateGroupDto> GetGroupByIdAsync(int id)
+		public async Task<GroupDto> GetGroupByIdAsync(int id)
 		{
-			var group = await _uow.GroupRepository.GetByIdAsync(id);
+			var group = await _uow.GroupRepository.GetGroupWithChargeStationsAsync(id);
 			if (group == null) throw new KeyNotFoundException("Group not found.");
 
-			return _mapper.Map<CreateGroupDto>(group);
+			return _mapper.Map<GroupDto>(group);
 		}
 
-		public async Task<CreateGroupDto> CreateGroupAsync(CreateGroupDto groupDto)
+		public async Task<GroupDto> CreateGroupAsync(CreateGroupDto groupDto)
 		{
 			var group = new Group(0, groupDto.Name, groupDto.CapacityInAmps); // ID will be set by DB
 			await _uow.GroupRepository.AddAsync(group);
 			await _uow.SaveChangesAsync();
-			return _mapper.Map<CreateGroupDto>(group);
+			return _mapper.Map<GroupDto>(group);
 		}
 
-		public async Task<CreateGroupDto> UpdateGroupAsync(int id, UpdateGroupDto updateGroupDto)
+		public async Task<GroupDto> UpdateGroupAsync(int id, UpdateGroupDto updateGroupDto)
 		{
 			var group = await _uow.GroupRepository.GetByIdAsync(id);
 			if (group == null) throw new KeyNotFoundException("Group not found.");
@@ -50,26 +50,19 @@ namespace SmartCharging.Application.Services.Concrete
 			group.UpdateCapacity(updateGroupDto.CapacityInAmps);
 
 			await _uow.SaveChangesAsync();
-			return _mapper.Map<CreateGroupDto>(group);
+			return _mapper.Map<GroupDto>(group);
 		}
 
 		public async Task<bool> DeleteGroupAsync(int id)
 		{
 			var group = await _uow.GroupRepository.GetGroupWithChargeStationsAsync(id);
-			if (group == null) throw new KeyNotFoundException("Group not found.");
+			if (group == null) 
+				throw new KeyNotFoundException("Group not found.");
 
-			// Remove all charge stations in the group
-			foreach (var chargeStation in group.ChargeStations.ToList()) // ToList() avoids collection modification issues
-			{
-				_uow.ChargeStationRepository.Delete(chargeStation);
-			}
-
-			// Now delete the group itself
 			_uow.GroupRepository.Delete(group);
 			await _uow.SaveChangesAsync();
 
 			return true;
 		}
-
 	}
 }

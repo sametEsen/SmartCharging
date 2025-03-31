@@ -45,7 +45,7 @@ namespace SmartCharging.Api.Controllers
 				return BadRequest(validationResult.Errors);
 
 			var createdConnector = await _connectorService.CreateConnectorAsync(connectordto);
-			return CreatedAtAction(nameof(GetConnector), new { chargeStationId = connectordto.ChargeStationId, id = connectordto.Id }, createdConnector);
+			return CreatedAtAction(nameof(GetConnector), new { chargeStationId = createdConnector.ChargeStationId, id = createdConnector.Id }, createdConnector);
 		}
 
 		// Update an existing Connector
@@ -63,7 +63,7 @@ namespace SmartCharging.Api.Controllers
 			}
 			catch (InvalidOperationException ex)
 			{
-				return BadRequest(ex.Message); // Handles domain-level validation exceptions
+				return BadRequest(ex.Message);
 			}
 			catch (KeyNotFoundException)
 			{

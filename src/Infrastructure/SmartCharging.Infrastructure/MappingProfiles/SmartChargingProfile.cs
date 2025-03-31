@@ -10,9 +10,17 @@ namespace SmartCharging.Infrastructure.MappingProfiles
 	{
 		public SmartChargingProfile()
 		{
+			CreateMap<Group, GroupDto>().ReverseMap();
 			CreateMap<Group, CreateGroupDto>().ReverseMap();
+			CreateMap<Group, UpdateGroupDto>().ReverseMap();
+
+			CreateMap<ChargeStation, ChargeStationDto>().ReverseMap();
 			CreateMap<ChargeStation, CreateChargeStationDto>().ReverseMap();
+			CreateMap<ChargeStation, UpdateChargeStationDto>().ReverseMap();
+
+			CreateMap<Connector, ConnectorDto>().ReverseMap();
 			CreateMap<Connector, CreateConnectorDto>().ReverseMap();
+			CreateMap<Connector, UpdateConnectorDto>().ReverseMap();
 		}
 	}
 }

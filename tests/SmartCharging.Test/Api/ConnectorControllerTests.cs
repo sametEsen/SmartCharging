@@ -5,10 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using SmartCharging.Api.Controllers;
 using SmartCharging.Application.Services.Abstract;
-using SmartCharging.Domain.DataTransfer.ChargeStation;
 using SmartCharging.Domain.DataTransfer.Connector;
-using SmartCharging.Domain.DataTransfer.Group;
-using SmartCharging.Domain.Entities;
 
 namespace SmartCharging.Tests.Api
 {
@@ -44,10 +41,10 @@ namespace SmartCharging.Tests.Api
 		public async Task GetAll_ShouldReturnListOfConnectors()
 		{
 			// Arrange
-			var connectors = new List<CreateConnectorDto>
+			var connectors = new List<ConnectorDto>
 			{
-				new CreateConnectorDto { ChargeStationId = 1, Id = 1, MaxCurrentInAmps = 50 },
-				new CreateConnectorDto { ChargeStationId = 1, Id = 2, MaxCurrentInAmps = 30 }
+				new ConnectorDto { ChargeStationId = 1, Id = 1, MaxCurrentInAmps = 50 },
+				new ConnectorDto { ChargeStationId = 1, Id = 2, MaxCurrentInAmps = 30 }
 			};
 			_connectorServiceMock.Setup(service => service.GetAllConnectorsAsync()).ReturnsAsync(connectors);
 
@@ -70,7 +67,7 @@ namespace SmartCharging.Tests.Api
 			// Arrange
 			var chargeStationId = 1;
 			var id = 1;
-			var connector = new CreateConnectorDto { ChargeStationId = chargeStationId, Id = id, MaxCurrentInAmps = 50 };
+			var connector = new ConnectorDto { ChargeStationId = chargeStationId, Id = id, MaxCurrentInAmps = 50 };
 			_connectorServiceMock.Setup(service => service.GetConnectorByIdAsync(1, 1)).ReturnsAsync(connector);
 
 			// Act
@@ -86,7 +83,7 @@ namespace SmartCharging.Tests.Api
 		public async Task GetById_InvalidId_ShouldReturnNotFound()
 		{
 			// Arrange
-			_connectorServiceMock.Setup(service => service.GetConnectorByIdAsync(1, 99)).ReturnsAsync((CreateConnectorDto)null);
+			_connectorServiceMock.Setup(service => service.GetConnectorByIdAsync(1, 99)).ReturnsAsync((ConnectorDto)null);
 
 			// Act
 			var result = await _controller.GetConnector(1, 99);
@@ -103,8 +100,8 @@ namespace SmartCharging.Tests.Api
 		public async Task Create_ValidDto_ShouldReturnCreatedConnector()
 		{
 			// Arrange
-			var createDto = new CreateConnectorDto { ChargeStationId = 1, Id = 3, MaxCurrentInAmps = 40 };
-			var createdDto = new CreateConnectorDto { ChargeStationId = 1, Id = 3, MaxCurrentInAmps = 40 };
+			var createDto = new CreateConnectorDto { ChargeStationId = 1, MaxCurrentInAmps = 40 };
+			var createdDto = new ConnectorDto { ChargeStationId = 1, Id = 3, MaxCurrentInAmps = 40 };
 
 			_createValidatorMock.Setup(v => v.ValidateAsync(createDto, default))
 				.ReturnsAsync(new ValidationResult());
@@ -124,7 +121,7 @@ namespace SmartCharging.Tests.Api
 		public async Task Create_InvalidDto_ShouldReturnBadRequest()
 		{
 			// Arrange
-			var createDto = new CreateConnectorDto { ChargeStationId = 1, Id = 3, MaxCurrentInAmps = 0 };
+			var createDto = new CreateConnectorDto { ChargeStationId = 1, MaxCurrentInAmps = 0 };
 			var validationErrors = new ValidationResult(new List<ValidationFailure>
 			{
 				new ValidationFailure("MaxCurrentInAmps", "MaxCurrentInAmps must be greater than zero.")
@@ -150,7 +147,7 @@ namespace SmartCharging.Tests.Api
 		{
 			// Arrange
 			var updateDto = new UpdateConnectorDto { MaxCurrentInAmps = 45 };
-			var updatedDto = new CreateConnectorDto { ChargeStationId = 1, Id = 1, MaxCurrentInAmps = 45 };
+			var updatedDto = new ConnectorDto { ChargeStationId = 1, Id = 1, MaxCurrentInAmps = 45 };
 
 			_updateValidatorMock.Setup(v => v.ValidateAsync(updateDto, default))
 				.ReturnsAsync(new ValidationResult());

@@ -17,23 +17,20 @@ namespace SmartCharging.Application.Services.Concrete
 			_mapper = mapper;
 		}
 
-		public async Task<IEnumerable<CreateChargeStationDto>> GetAllChargeStationsAsync()
+		public async Task<IEnumerable<ChargeStationDto>> GetAllChargeStationsAsync()
 		{
-			var stations = await _uow.ChargeStationRepository.GetAllAsync();
-			return _mapper.Map<IEnumerable<CreateChargeStationDto>>(stations);
+			var stations = await _uow.ChargeStationRepository.GetAllDetailsAsync();
+			return _mapper.Map<IEnumerable<ChargeStationDto>>(stations);
 		}
 
-		public async Task<CreateChargeStationDto?> GetChargeStationByIdAsync(int id)
+		public async Task<ChargeStationDto?> GetChargeStationByIdAsync(int id)
 		{
 			var station = await _uow.ChargeStationRepository.GetByIdAsync(id);
-			return station == null ? null : _mapper.Map<CreateChargeStationDto>(station);
+			return station == null ? null : _mapper.Map<ChargeStationDto>(station);
 		}
 
-		public async Task<CreateChargeStationDto> CreateChargeStationAsync(CreateChargeStationDto chargeStationDto)
+		public async Task<ChargeStationDto> CreateChargeStationAsync(CreateChargeStationDto chargeStationDto)
 		{
-			if (string.IsNullOrWhiteSpace(chargeStationDto.Name))
-				throw new ArgumentException("Charge station name cannot be empty.");
-
 			var station = new ChargeStation(0, chargeStationDto.Name); // 0 as Id since EF Core will handle it
 
 			var group = await _uow.GroupRepository.GetByIdAsync(chargeStationDto.GroupId);
@@ -44,35 +41,50 @@ namespace SmartCharging.Application.Services.Concrete
 			await _uow.ChargeStationRepository.AddAsync(station);
 			await _uow.SaveChangesAsync();
 
-			return _mapper.Map<CreateChargeStationDto>(station);
+			return _mapper.Map<ChargeStationDto>(station);
 		}
 
-		public async Task<CreateChargeStationDto> UpdateChargeStationAsync(int id, UpdateChargeStationDto chargeStationDto)
+		public async Task<ChargeStationDto> UpdateChargeStationAsync(int id, UpdateChargeStationDto chargeStationDto)
 		{
-			var station = await _uow.ChargeStationRepository.GetByIdAsync(id);
+			var station = await _uow.ChargeStationRepository.GetChargeStationWithGroupAndConnectorsAsync(id);
 			if (station == null) throw new KeyNotFoundException("Charge Station not found");
 
 			station.UpdateName(chargeStationDto.Name);
 
 			var group = await _uow.GroupRepository.GetByIdAsync(chargeStationDto.GroupId);
-			if (group != null) 
+			if (group != null && (station.Group == null || station.Group.Id != group.Id)) 
 			{
 				station.AssignToGroup(group);
 			}
-			else
+
+			if (chargeStationDto.Connectors.Count > 0)
 			{
-				station.UnassignFromGroup();
+				var connectors = _mapper.Map<List<Connector>>(chargeStationDto.Connectors);
+				foreach (var connector in connectors)
+				{
+					if (station.Connectors.Any(c => c.Id == connector.Id) == false)
+					{
+						station.AddConnector(connector);
+						await _uow.ConnectorRepository.AddAsync(connector);
+					}
+					else
+					{
+						station.RemoveConnector(connector);
+						_uow.ConnectorRepository.Delete(connector);
+					}
+
+				}
 			}
 
 			_uow.ChargeStationRepository.Update(station);
 			await _uow.SaveChangesAsync();
 
-			return _mapper.Map<CreateChargeStationDto>(station);
+			return _mapper.Map<ChargeStationDto>(station);
 		}
 
 		public async Task<bool> DeleteChargeStationAsync(int id)
 		{
-			var station = await _uow.ChargeStationRepository.GetByIdAsync(id);
+			var station = await _uow.ChargeStationRepository.GetChargeStationWithGroupAndConnectorsAsync(id);
 			if (station == null) throw new KeyNotFoundException("Charge Station not found");
 
 			_uow.ChargeStationRepository.Delete(station);

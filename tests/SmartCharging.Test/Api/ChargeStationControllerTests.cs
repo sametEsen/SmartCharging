@@ -1,16 +1,11 @@
-﻿using FluentValidation.Results;
+﻿using FluentAssertions;
 using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using SmartCharging.Api.Controllers;
 using SmartCharging.Application.Services.Abstract;
 using SmartCharging.Domain.DataTransfer.ChargeStation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FluentAssertions;
 
 namespace SmartCharging.Tests.Api
 {
@@ -42,10 +37,10 @@ namespace SmartCharging.Tests.Api
 		public async Task GetAll_ShouldReturnListOfChargeStations()
 		{
 			// Arrange
-			var chargeStations = new List<CreateChargeStationDto>
+			var chargeStations = new List<ChargeStationDto>
 			{
-				new CreateChargeStationDto { Id = 1, Name = "Station A", GroupId = 1 },
-				new CreateChargeStationDto { Id = 2, Name = "Station B", GroupId = 1 }
+				new ChargeStationDto { Id = 1, Name = "Station A", GroupId = 1 },
+				new ChargeStationDto { Id = 2, Name = "Station B", GroupId = 1 }
 			};
 			_chargeStationServiceMock.Setup(service => service.GetAllChargeStationsAsync()).ReturnsAsync(chargeStations);
 
@@ -66,7 +61,7 @@ namespace SmartCharging.Tests.Api
 		public async Task GetById_ValidId_ShouldReturnChargeStation()
 		{
 			// Arrange
-			var chargeStation = new CreateChargeStationDto { Id = 1, Name = "Station A", GroupId = 1 };
+			var chargeStation = new ChargeStationDto { Id = 1, Name = "Station A", GroupId = 1 };
 			_chargeStationServiceMock.Setup(service => service.GetChargeStationByIdAsync(1)).ReturnsAsync(chargeStation);
 
 			// Act
@@ -82,7 +77,7 @@ namespace SmartCharging.Tests.Api
 		public async Task GetById_InvalidId_ShouldReturnNotFound()
 		{
 			// Arrange
-			_chargeStationServiceMock.Setup(service => service.GetChargeStationByIdAsync(99)).ReturnsAsync((CreateChargeStationDto)null);
+			_chargeStationServiceMock.Setup(service => service.GetChargeStationByIdAsync(99)).ReturnsAsync((ChargeStationDto)null);
 
 			// Act
 			var result = await _controller.GetChargeStation(99);
@@ -100,7 +95,7 @@ namespace SmartCharging.Tests.Api
 		{
 			// Arrange
 			var createDto = new CreateChargeStationDto { Name = "Station C", GroupId = 1 };
-			var createdDto = new CreateChargeStationDto { Id = 3, Name = "Station C", GroupId = 1 };
+			var createdDto = new ChargeStationDto { Id = 3, Name = "Station C", GroupId = 1 };
 
 			_createValidatorMock.Setup(v => v.ValidateAsync(createDto, default))
 				.ReturnsAsync(new ValidationResult());
@@ -146,7 +141,7 @@ namespace SmartCharging.Tests.Api
 		{
 			// Arrange
 			var updateDto = new UpdateChargeStationDto { Name = "Updated Station" };
-			var updatedDto = new CreateChargeStationDto { Id = 1, Name = "Updated Station", GroupId = 1 };
+			var updatedDto = new ChargeStationDto { Id = 1, Name = "Updated Station", GroupId = 1 };
 
 			_updateValidatorMock.Setup(v => v.ValidateAsync(updateDto, default))
 				.ReturnsAsync(new ValidationResult());
