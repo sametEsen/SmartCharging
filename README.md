@@ -45,11 +45,17 @@ This project follows **Domain-Driven Design (DDD)** principles.
 
 ```
 SmartCharging/
-│── SmartCharging.Api/              # API Layer (Controllers, Startup)
-│── SmartCharging.Application/      # Application Layer (Services, DTOs)
-│── SmartCharging.Domain/           # Domain Layer (Entities, Business Logic)
-│── SmartCharging.Infrastructure/   # Infrastructure Layer (Repositories, DbContext)
-│── SmartCharging.Tests/            # Unit Tests (NUnit)
+│── src
+  │── Api
+    │── SmartCharging.Api/              # API Layer (Controllers, Startup)
+  │── Application
+    │── SmartCharging.Application/      # Application Layer (Services, DTOs)
+  │── Domain
+    │── SmartCharging.Domain/           # Domain Layer (Entities, Business Logic)
+  │── Infrastructure
+    │── SmartCharging.Infrastructure/   # Infrastructure Layer (Repositories, DbContext)
+│── tests
+  │── SmartCharging.Tests/            # Unit Tests (NUnit)
 ```
 
 **Key Components:**
