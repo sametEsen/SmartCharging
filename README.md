@@ -62,12 +62,12 @@ SmartCharging/
 ---
 
 ## **📥 Installation**
-1️⃣ **Install Dependencies**  
+✅ **Install Dependencies**  
 ```sh
 dotnet restore
 ```
 
-3️⃣ **Run the API**  
+✅ **Run the API**  
 ```sh
 dotnet run --project SmartCharging.Api
 ```
